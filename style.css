@@ -1,0 +1,29 @@
+.temp-button {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.temp-button:hover {
+    background-color: #0056b3;
+}
+
+/* style for clothing images */
+.clothingImage {
+    max-width: 100px;
+    margin: 5px;
+    opacity: .6;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.clothingImage.show {
+    /* change opacity to 1 (visible) when the "show" class is added */
+    opacity: 1;
+}
+
+#wardrobe {
+    border: 1px dotted grey;
+}
