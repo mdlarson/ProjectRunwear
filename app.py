@@ -1,15 +1,17 @@
 from flask import Flask
+from flask import render_template
+from flask import request
 from markupsafe import escape
 
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello_world():
+def index():
     world = "derp derp"
-    return f"<h1>Hello, {escape(world)}!</h1>"
+    return render_template('runwear.html')
 
 
 @app.route("/about")
 def about():
-    return f"This is my first simple flask app. :)"
+    return render_template('about.html')
