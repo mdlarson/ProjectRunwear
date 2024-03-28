@@ -8,3 +8,5 @@
 /shirt.png
 /shorts.png
 /tights.png
+.venv/*
+__pycache__/*
