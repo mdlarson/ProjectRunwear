@@ -6,16 +6,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // map clothing options to images
     const clothingImages = {
-        "shirt": "shirt.png",
-        "longsleeve": "longsleeve.png",
-        "fleece": "fleece.png",
-        "shorts": "shorts.png",
-        "tights": "tights.png",
-        "joggers": "joggers.png",
-        "cap": "cap.png",
-        "beanie": "beanie.png",
-        "gloves": "gloves.png",
-        "scarf": "scarf.png"
+        "shirt": "static/shirt.png",
+        "longsleeve": "static/longsleeve.png",
+        "fleece": "static/fleece.png",
+        "shorts": "static/shorts.png",
+        "tights": "static/tights.png",
+        "joggers": "static/joggers.png",
+        "cap": "static/cap.png",
+        "beanie": "static/beanie.png",
+        "gloves": "static/gloves.png",
+        "scarf": "static/scarf.png"
         // Add URLs for other options here
     };
 
