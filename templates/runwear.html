@@ -3,23 +3,32 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="static/style.css">
+    <script src="static/geo.js"></script>
     <script src="static/script.js"></script>
 </head>
 
 <body>
-    <h1>Temperature</h1>
-    <div id="number-buttons">
-        <!-- display temperature buttons -->
-    </div>
+    <header>header</header>
+    <main>
+        <h1>Find Your Location</h1>
+        <button onclick="getLocation()">Get My Location</button>
+        <div id="output"></div>
 
-    <h2>What to Wear</h2>
-    <div id="highlighted-items">
-        <!-- display suitable clothing items -->
-    </div>
+        <h2>Temperature</h2>
+        <div id="number-buttons">
+            <!-- display temperature buttons -->
+        </div>
 
-    <div id="wardrobe">
-        <!-- display clothing options -->
-    </div>
+        <h2>What to Wear</h2>
+        <div id="highlighted-items">
+            <!-- display suitable clothing items -->
+        </div>
+
+        <div id="wardrobe">
+            <!-- display clothing options -->
+        </div>
+    </main>
+    <footer>footer</footer>
 </body>
 
 </html>
