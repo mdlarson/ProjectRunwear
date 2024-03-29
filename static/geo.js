@@ -1,5 +1,5 @@
-// fetch location from browser
-function getLocation() {
+// Fetch location from browser
+async function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
@@ -7,53 +7,54 @@ function getLocation() {
     }
 }
 
-// given location, fetch weather
-function fetchWeather(latitude, longitude) {
-    const endpoint = `https://api.weather.gov/points/${latitude},${longitude}`;
-    fetch(endpoint)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // displaying forecast URL
-            const forecastUrl = data.properties.forecastHourly;
-            document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
+// Given location, fetch weather
+async function fetchWeather(latitude, longitude) {
+    try {
+        const endpoint = `https://api.weather.gov/points/${latitude},${longitude}`;
+        const response = await fetch(endpoint).then(handleFetchResponse);
 
-            // fetch forecast data
-            fetch(forecastUrl)
-                .then(response => response.json())
-                .then(forecastData => {
-                    const temp = forecastData.properties.periods[0].temperature;
-                    const tempUnit = forecastData.properties.periods[0].temperatureUnit;
-                    const forecastSummary = forecastData.properties.periods[0].shortForecast;
-                    const precip = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
+        const forecastUrl = response.properties.forecastHourly;
+        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
 
-                    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${precip}% chance of rain`;
-                })
-                .catch(error => console.error('Error fetching forecast: ', error));
-        })
-        .catch(error => {
-            console.error('Error fetching weather: ', error);
-            document.getElementById('forecastSourceOutput').innerHTML = "Failed to fetch weather data.";
-        });
+        const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
+        const { temperature, temperatureUnit, shortForecast } = forecastData.properties.periods[0];
+        const probabilityOfPrecipitation = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
+
+        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, probabilityOfPrecipitation);
+    } catch (error) {
+        logError(error);
+    }
 }
 
-// process weather data for display
+// Process weather data for display
 function displayWeather(position) {
-    // TODO: trim extra digits from lat/long
+    const latitude = position.coords.latitude.toFixed(4);
+    const longitude = position.coords.longitude.toFixed(4);
 
-    // display in output div
-    document.getElementById('latLongOutput').innerHTML = position.coords.latitude + ", " + position.coords.longitude;
-
-    // with location data, fetch weather
-    fetchWeather(position.coords.latitude, position.coords.longitude);
-
+    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
+    fetchWeather(latitude, longitude);
 }
 
-// error handling
+function updateWeatherDisplay(temp, tempUnit, forecastSummary, precip) {
+    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${precip}% chance of rain`;
+}
+
+// Utility Functions
+// Generic API response handling
+function handleFetchResponse(response) {
+    if (!response.ok) {
+        throw new Error(`HTTP error. Status: ' ${response.status}`);
+    }
+    return response.json();
+}
+
+
+// Generic error handling
+function logError(error) {
+    console.error(`Error: `, error);
+    document.getElementById(`forecastSourceOutput`).innerHTML = "Failed to fetch weather data.";
+}
+
 function displayError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
