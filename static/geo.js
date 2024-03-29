@@ -49,27 +49,6 @@ function displayWeather(position) {
     // with location data, fetch weather
     fetchWeather(position.coords.latitude, position.coords.longitude);
 
-
-
-
-    // optional send to Flask server, if I think of a reason for it!
-    // fetch('/location', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //         latitude: position.coords.latitude,
-    //         longitude: position.coords.longitude,
-    //     }),
-    // })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log('Success: ', data);
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error: ', error)
-    //     })
 }
 
 // error handling
