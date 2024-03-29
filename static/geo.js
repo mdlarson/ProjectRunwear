@@ -17,10 +17,10 @@ async function fetchWeather(latitude, longitude) {
         document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
 
         const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
-        const { temperature, temperatureUnit, shortForecast } = forecastData.properties.periods[0];
+        const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
         const probabilityOfPrecipitation = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
 
-        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, probabilityOfPrecipitation);
+        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation);
     } catch (error) {
         logError(error);
     }
@@ -35,8 +35,8 @@ function displayWeather(position) {
     fetchWeather(latitude, longitude);
 }
 
-function updateWeatherDisplay(temp, tempUnit, forecastSummary, precip) {
-    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${precip}% chance of rain`;
+function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
+    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
 }
 
 // Utility Functions
