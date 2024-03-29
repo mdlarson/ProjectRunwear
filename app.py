@@ -15,10 +15,10 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/location', methods=['POST'])
-def location():
-    data = request.json
-    latitude = data['latitude']
-    longitude = data['longitude']
-    # process location data
-    return jsonify({'status': 'success', 'latitude': latitude, 'longitude': longitude})
+# @app.route('/location', methods=['POST'])
+# def location():
+#     data = request.json
+#     latitude = data['latitude']
+#     longitude = data['longitude']
+#     # process location data
+#     return jsonify({'status': 'success', 'latitude': latitude, 'longitude': longitude})

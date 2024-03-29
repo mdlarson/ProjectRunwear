@@ -1,13 +1,13 @@
-// fetch location
+// fetch location from browser
 function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
+        navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
         alert("Geolocation is not supported by this browser.");
     }
 }
 
-// fetch weather
+// given location, fetch weather
 function fetchWeather(latitude, longitude) {
     const endpoint = `https://api.weather.gov/points/${latitude},${longitude}`;
     fetch(endpoint)
@@ -20,7 +20,7 @@ function fetchWeather(latitude, longitude) {
         .then(data => {
             // displaying forecast URL
             console.log(data);
-            const forecastUrl = data.properties.forecast;
+            const forecastUrl = data.properties.forecastHourly;
             document.getElementById('weatherOutput').innerHTML = `Forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
 
             // fetch forecast data
@@ -28,6 +28,7 @@ function fetchWeather(latitude, longitude) {
                 .then(response => response.json())
                 .then(forecastData => {
                     console.log(forecastData);
+                    console.log(forecastData.properties.periods.temperature);
                     //process further from here
                 })
                 .catch(error => console.error('Error fetching forecast: ', error));
@@ -38,10 +39,9 @@ function fetchWeather(latitude, longitude) {
         });
 }
 
-
-// show position
-function showPosition(position) {
-    console.log(position.coords.latitude + ", " + position.coords.longitude);
+// process weather data for display
+function displayWeather(position) {
+    // TODO: trim extra digits from lat/long
 
     // display in output div
     document.getElementById('output').innerHTML = position.coords.latitude + ", " + position.coords.longitude;
@@ -49,28 +49,31 @@ function showPosition(position) {
     // with location data, fetch weather
     fetchWeather(position.coords.latitude, position.coords.longitude);
 
-    // also send to Flask server
-    fetch('/location', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success: ', data);
-        })
-        .catch((error) => {
-            console.error('Error: ', error)
-        })
+
+
+
+    // optional send to Flask server, if I think of a reason for it!
+    // fetch('/location', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //         latitude: position.coords.latitude,
+    //         longitude: position.coords.longitude,
+    //     }),
+    // })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log('Success: ', data);
+    //     })
+    //     .catch((error) => {
+    //         console.error('Error: ', error)
+    //     })
 }
 
 // error handling
-function showError(error) {
+function displayError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
             alert("User denied request for geolocation.");
@@ -86,6 +89,3 @@ function showError(error) {
             break;
     }
 }
-
-// call getLocation() on page load
-// window.onload = getLocation;
