@@ -1,41 +1,61 @@
-// fetch location
-function getLocation() {
+// Fetch location from browser
+async function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
+        navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
         alert("Geolocation is not supported by this browser.");
     }
 }
 
-// show position
-function showPosition(position) {
-    console.log(position.coords.latitude + ", " + position.coords.longitude);
+// Given location, fetch weather
+async function fetchWeather(latitude, longitude) {
+    try {
+        const endpoint = `https://api.weather.gov/points/${latitude},${longitude}`;
+        const response = await fetch(endpoint).then(handleFetchResponse);
 
-    // display in output div
-    document.getElementById('output').innerHTML = position.coords.latitude + ", " + position.coords.longitude;
+        const forecastUrl = response.properties.forecastHourly;
+        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
 
-    // also send to Flask server
-    fetch('/location', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success: ', data);
-        })
-        .catch((error) => {
-            console.error('Error: ', error)
-        })
+        const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
+        const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
+        const probabilityOfPrecipitation = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
+
+        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation);
+    } catch (error) {
+        logError(error);
+    }
 }
 
-// error handling
-function showError(error) {
+// Process weather data for display
+function displayWeather(position) {
+    const latitude = position.coords.latitude.toFixed(4);
+    const longitude = position.coords.longitude.toFixed(4);
+
+    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
+    fetchWeather(latitude, longitude);
+}
+
+function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
+    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
+}
+
+// Utility Functions
+// Generic API response handling
+function handleFetchResponse(response) {
+    if (!response.ok) {
+        throw new Error(`HTTP error. Status: ' ${response.status}`);
+    }
+    return response.json();
+}
+
+
+// Generic error handling
+function logError(error) {
+    console.error(`Error: `, error);
+    document.getElementById(`forecastSourceOutput`).innerHTML = "Failed to fetch weather data.";
+}
+
+function displayError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
             alert("User denied request for geolocation.");
@@ -51,6 +71,3 @@ function showError(error) {
             break;
     }
 }
-
-// call getLocation() on page load
-// window.onload = getLocation;

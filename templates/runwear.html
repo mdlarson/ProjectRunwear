@@ -8,25 +8,32 @@
 </head>
 
 <body>
+    <noscript>
+        This site requires JavaScript to fetch location and weather details. Make sure that's enabled, then reload. :)
+    </noscript>
     <header>header</header>
     <main>
-        <h1>Find Your Location</h1>
-        <button onclick="getLocation()">Get My Location</button>
-        <div id="output"></div>
+        <h1>What should I wear for my run?</h1>
+        <button onclick="getLocation()">Find Me</button><br>
+        <div id="latLongOutput"></div><br>
+        <div id="forecastSourceOutput"></div><br>
+        <div id="forecastOutput"></div><br>
 
+
+
+        <!-- 
+            -- TODO: temperature buttons, outfit recommendation, wardrobe options --            
         <h2>Temperature</h2>
         <div id="number-buttons">
-            <!-- display temperature buttons -->
         </div>
-
         <h2>What to Wear</h2>
         <div id="highlighted-items">
-            <!-- display suitable clothing items -->
         </div>
 
         <div id="wardrobe">
-            <!-- display clothing options -->
         </div>
+        -->
+
     </main>
     <footer>footer</footer>
 </body>
