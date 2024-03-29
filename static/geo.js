@@ -19,23 +19,25 @@ function fetchWeather(latitude, longitude) {
         })
         .then(data => {
             // displaying forecast URL
-            console.log(data);
             const forecastUrl = data.properties.forecastHourly;
-            document.getElementById('weatherOutput').innerHTML = `Forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
+            document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
 
             // fetch forecast data
             fetch(forecastUrl)
                 .then(response => response.json())
                 .then(forecastData => {
-                    console.log(forecastData);
-                    console.log(forecastData.properties.periods.temperature);
-                    //process further from here
+                    const temp = forecastData.properties.periods[0].temperature;
+                    const tempUnit = forecastData.properties.periods[0].temperatureUnit;
+                    const forecastSummary = forecastData.properties.periods[0].shortForecast;
+                    const precip = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
+
+                    document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${precip}% chance of rain`;
                 })
                 .catch(error => console.error('Error fetching forecast: ', error));
         })
         .catch(error => {
             console.error('Error fetching weather: ', error);
-            document.getElementById('weatherOutput').innerHTML = "Failed to fetch weather data.";
+            document.getElementById('forecastSourceOutput').innerHTML = "Failed to fetch weather data.";
         });
 }
 
@@ -44,7 +46,7 @@ function displayWeather(position) {
     // TODO: trim extra digits from lat/long
 
     // display in output div
-    document.getElementById('output').innerHTML = position.coords.latitude + ", " + position.coords.longitude;
+    document.getElementById('latLongOutput').innerHTML = position.coords.latitude + ", " + position.coords.longitude;
 
     // with location data, fetch weather
     fetchWeather(position.coords.latitude, position.coords.longitude);
