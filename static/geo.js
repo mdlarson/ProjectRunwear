@@ -1,11 +1,24 @@
 // Fetch location from browser
 async function getLocation() {
+    // If we can get the location, use that position to get weather
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
         alert("Geolocation is not supported by this browser.");
     }
 }
+
+
+// Process weather data for display
+function displayWeather(position) {
+    // TODO: adjust precision for privacy?
+    const latitude = position.coords.latitude.toFixed(4);
+    const longitude = position.coords.longitude.toFixed(4);
+
+    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
+    fetchWeather(latitude, longitude);
+}
+
 
 // Given location, fetch weather
 async function fetchWeather(latitude, longitude) {
@@ -26,15 +39,7 @@ async function fetchWeather(latitude, longitude) {
     }
 }
 
-// Process weather data for display
-function displayWeather(position) {
-    const latitude = position.coords.latitude.toFixed(4);
-    const longitude = position.coords.longitude.toFixed(4);
-
-    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
-    fetchWeather(latitude, longitude);
-}
-
+// Supply weather details to front-end
 function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
     document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
 }
@@ -48,7 +53,6 @@ function handleFetchResponse(response) {
     return response.json();
 }
 
-
 // Generic error handling
 function logError(error) {
     console.error(`Error: `, error);
@@ -61,13 +65,17 @@ function displayError(error) {
             alert("User denied request for geolocation.");
             break;
         case error.POSITION_UNAVAILABLE:
-            alert("Location data is unavailable.");
+            alert("Location data is not available.");
             break;
         case error.TIMEOUT:
-            alert("Request for location data timed out.");
+            alert("The request for location data timed out.");
             break;
         case error.UNKNOWN_ERROR:
-            alert("An unknown error occurred.");
+            alert("Hmmm. An unknown error occurred.");
             break;
     }
 }
+
+// Experimental Work and Testing
+const temp = 47; // Example temperature
+const clothingToWear = getClothing(temp);
