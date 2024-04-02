@@ -39,10 +39,27 @@ async function fetchWeather(latitude, longitude) {
     }
 }
 
+
 // Supply weather details to front-end
 function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
     document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
+
+    fetch('/getClothing', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            temp: temp,
+            windSpeed: windSpeed
+        })
+    }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            document.getElementById('recommendationOutput').innerHTML = `${data}`;
+        })
 }
+
 
 // Utility Functions
 // Generic API response handling
@@ -53,11 +70,13 @@ function handleFetchResponse(response) {
     return response.json();
 }
 
+
 // Generic error handling
 function logError(error) {
     console.error(`Error: `, error);
     document.getElementById(`forecastSourceOutput`).innerHTML = "Failed to fetch weather data.";
 }
+
 
 function displayError(error) {
     switch (error.code) {
@@ -75,7 +94,3 @@ function displayError(error) {
             break;
     }
 }
-
-// Experimental Work and Testing
-const temp = 47; // Example temperature
-const clothingToWear = getClothing(temp);

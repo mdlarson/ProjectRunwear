@@ -6,7 +6,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    world = "derp derp"
     return render_template('runwear.html')
 
 
@@ -15,17 +14,25 @@ def about():
     return render_template('about.html')
 
 
-@app.route("/getClothing")
-def get_clothing_recommendation(temp, windSpeed):
-    recommendations = []
+@app.route('/getClothing', methods=['POST'])
+def get_clothing_recommendation():
+    data = request.json
+    temp = data['temp']
+    wind_speed = process_wind_speed(data['windSpeed'])
 
-    conditions = get_conditions(windSpeed)
+    conditions = get_conditions(wind_speed)
 
-    return (clothing_images[item] for item in clothingRecommendationMatrix[temp][conditions])
+    # return jsonify(clothing_images[item] for item in clothingRecommendationMatrix[temp][conditions])
+    return jsonify({'string': 'data'})
 
 
-def get_conditions(windSpeed):
-    if windSpeed > 10:
+def process_wind_speed(wind_speed):
+    wind_speed_num = wind_speed.split(' ')
+    return wind_speed_num[0]
+
+
+def get_conditions(wind_speed):
+    if int(wind_speed) > 10:
         conditions = 'windy'
     else:
         conditions = 'calm'
