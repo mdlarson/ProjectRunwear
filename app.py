@@ -1,5 +1,9 @@
+import logging
 from flask import Flask, jsonify, render_template, request
 from markupsafe import escape
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 app = Flask(__name__)
 
@@ -16,21 +20,41 @@ def about():
 
 @app.route('/getClothing', methods=['POST'])
 def get_clothing_recommendation():
-    data = request.json
-    temp = data['temp']
-    wind_speed = process_wind_speed(data['windSpeed'])
+    # Given weather conditions, identify appropriate clothing, return related images
+    try:
+        data = request.json
 
-    conditions = get_conditions(wind_speed)
+        # Process weather details
+        temp = round_temperature(data['temp'])
+        wind_speed = process_wind_speed(data['windSpeed'])
+        conditions = get_conditions(wind_speed)
 
-    # return jsonify(clothing_images[item] for item in clothingRecommendationMatrix[temp][conditions])
-    return jsonify({'string': 'data'})
+        # Retrieve the appropriate set of clothing
+        recommended_clothing = clothingRecommendationMatrix.get(
+            temp, {}).get(conditions, [])
+
+        # Fetch and return images for that set of clothing
+        image_urls = [clothing_images[item]
+                      for item in recommended_clothing if item in clothing_images]
+        return jsonify({"imageUrls": image_urls})
+
+    except Exception as e:
+        logging.exception("Error processing request")
+        return jsonify({"error": str(e)}), 500
+
+
+def round_temperature(temp):
+    # Round temperature to nearest 5-degree increment
+    return str(round(float(temp) / 5) * 5)
 
 
 def process_wind_speed(wind_speed):
-    wind_speed_num = wind_speed.split(' ')
-    return wind_speed_num[0]
+    # Extract integer portion of wind speed string
+    wind_speed_num = wind_speed.split(' ')[0]
+    return wind_speed_num
 
 
+# Categorize wind conditions
 def get_conditions(wind_speed):
     if int(wind_speed) > 10:
         conditions = 'windy'
@@ -40,7 +64,16 @@ def get_conditions(wind_speed):
 
 
 # Clothing References
-clothing_images = ['a', 'b', 'c']
+clothing_images = {
+    'shirt': 'static/images/shirt.svg',
+    'longsleeve': 'static/images/longsleeve.svg',
+    'fleece': 'static/images/fleece.svg',
+    'jacket': 'static/images/jacket.svg',
+    'shorts': 'static/images/shorts.svg',
+    'lightTights': 'static/images/lightTights.svg',
+    'beanie': 'static/images/beanie.svg',
+    'gloves': 'static/images/gloves.svg',
+}
 
 clothingRecommendationMatrix = {
     '55': {
