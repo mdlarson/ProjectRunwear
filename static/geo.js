@@ -1,11 +1,24 @@
 // Fetch location from browser
 async function getLocation() {
+    // If we can get the location, use that position to get weather
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
         alert("Geolocation is not supported by this browser.");
     }
 }
+
+
+// Process weather data for display
+function displayWeather(position) {
+    // TODO: adjust precision for privacy?
+    const latitude = position.coords.latitude.toFixed(4);
+    const longitude = position.coords.longitude.toFixed(4);
+
+    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
+    fetchWeather(latitude, longitude);
+}
+
 
 // Given location, fetch weather
 async function fetchWeather(latitude, longitude) {
@@ -14,7 +27,7 @@ async function fetchWeather(latitude, longitude) {
         const response = await fetch(endpoint).then(handleFetchResponse);
 
         const forecastUrl = response.properties.forecastHourly;
-        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
+        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a> ...`;
 
         const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
         const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
@@ -26,18 +39,29 @@ async function fetchWeather(latitude, longitude) {
     }
 }
 
-// Process weather data for display
-function displayWeather(position) {
-    const latitude = position.coords.latitude.toFixed(4);
-    const longitude = position.coords.longitude.toFixed(4);
 
-    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
-    fetchWeather(latitude, longitude);
-}
-
+// Supply weather details to front-end
 function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
     document.getElementById('forecastOutput').innerHTML = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
+
+    fetch('/getClothing', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            temp: temp,
+            windSpeed: windSpeed
+        })
+    }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Display images on webpage
+            const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
+            document.getElementById('recommendationOutput').innerHTML = imagesHtml;
+        })
 }
+
 
 // Utility Functions
 // Generic API response handling
@@ -55,19 +79,20 @@ function logError(error) {
     document.getElementById(`forecastSourceOutput`).innerHTML = "Failed to fetch weather data.";
 }
 
+
 function displayError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
             alert("User denied request for geolocation.");
             break;
         case error.POSITION_UNAVAILABLE:
-            alert("Location data is unavailable.");
+            alert("Location data is not available.");
             break;
         case error.TIMEOUT:
-            alert("Request for location data timed out.");
+            alert("The request for location data timed out.");
             break;
         case error.UNKNOWN_ERROR:
-            alert("An unknown error occurred.");
+            alert("Hmmm. An unknown error occurred.");
             break;
     }
 }
