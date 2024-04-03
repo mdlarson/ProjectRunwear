@@ -27,7 +27,7 @@ async function fetchWeather(latitude, longitude) {
         const response = await fetch(endpoint).then(handleFetchResponse);
 
         const forecastUrl = response.properties.forecastHourly;
-        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a>`;
+        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a> ...`;
 
         const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
         const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
@@ -56,7 +56,9 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
     }).then(response => response.json())
         .then(data => {
             console.log(data);
-            document.getElementById('recommendationOutput').innerHTML = `${data}`;
+            // Display images on webpage
+            const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
+            document.getElementById('recommendationOutput').innerHTML = imagesHtml;
         })
 }
 
