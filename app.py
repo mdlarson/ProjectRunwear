@@ -97,7 +97,7 @@ clothingRecommendationMatrix = {
         'windy': ["shirt", "longsleeve", "shorts", "cap"]
     },
     '45': {
-        'calm': ["shirt", "longsleeve", "shorts", "cap"],
+        'calm': ["shirt", "longsleeve", "shorts", "cap", "gloves"],
         'windy': ["shirt", "fleece", "shorts", "cap", "gloves"]
     },
     '40': {
