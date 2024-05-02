@@ -8,6 +8,26 @@ async function getLocation() {
     }
 }
 
+// Fetch location from user-provided ZIP
+async function getWeatherByZip() {
+    const zip = document.getElementById('zipInput').value;
+    if (!zip) {
+        alert('Please enter a valid ZIP code.');
+        return;
+    }
+
+    try {
+        const geoApiUrl = `https://api.zippopotam.us/us/${zip}`;
+        const locationResponse = await fetch(geoApiUrl);
+        const locationData = await handleFetchResponse(locationResponse);
+        const { latitude, longitude } = locationData.places[0];
+        fetchWeather(latitude, longitude);
+    } catch (error) {
+        logError(error);
+        document.getElementById('forecastSourceOutput').innerHTML = "Failed to fetch location data.";
+    }
+}
+
 
 // Process weather data for display
 function displayWeather(position) {
@@ -55,7 +75,7 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
         })
     }).then(response => response.json())
         .then(data => {
-            console.log(data);
+            console.log(data); // TODO: remove logging
             // Display images on webpage
             const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
             document.getElementById('recommendationOutput').innerHTML = imagesHtml;
