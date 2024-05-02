@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Runwear: What to Wear Running</title>
     <link rel="stylesheet" type="text/css" href="static/style.css">
-    <script src="static/geo.js"></script>
+    <script src="static/geo.js" defer></script>
 </head>
 
 <body>
-    <noscript>
-        This site requires JavaScript to fetch location and weather details. Make sure that's enabled, then reload. :)
-    </noscript>
-    <header>header</header>
-    <main>
+    <header>
         <h1>What should I wear for my run?</h1>
-        <button onclick="getLocation()">Find Me</button><br>
-        <input type="text" id="zipInput" placeholder="Enter ZIP Code">
-        <button onclick="getWeatherByZip()">Get Weather by ZIP</button><br>
-        <div id="latLongOutput"></div><br>
-        <div id="forecastSourceOutput"></div><br>
-        <div id="forecastOutput"></div><br>
-        <div id="recommendationOutput"></div><br>
+    </header>
+    <main>
+        <section>
+            <h2>Find Weather for Your Run</h2>
+            <button class="temp-button" onclick="getLocation()">Find Me</button>, or ↓
+            <form onsubmit="getWeatherByZip(); return false;">
+                <input type="text" id="zipInput" placeholder="Enter ZIP Code">
+                <button type="submit" class="temp-button">Get Weather by ZIP</button>
+            </form>
+        </section>
+        <section id="weatherDisplay">
+            <h2>Weather Details</h2>
+            <div id="latLongOutput"></div>
+            <div id="forecastSourceOutput"></div>
+            <div id="forecastOutput">Supply your location to get the weather + outfit recommendation!</div>
+        </section>
+        <section id="clothingRecommendation">
+            <h2>Outfit Recommendation</h2>
+            <div id="recommendationOutput"></div>
+        </section>
     </main>
-    <footer>footer</footer>
+    <footer>
+        <p>2024 &copy; Runwear</p>
+    </footer>
 </body>
 
 </html>
