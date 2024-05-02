@@ -1,9 +1,30 @@
+body,
+button,
+input {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+footer {
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 20px;
+}
+
 .temp-button {
     background-color: #007BFF;
     color: #fff;
     padding: 10px 20px;
-    margin: 5px;
+    margin: 5px 0;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -11,7 +32,13 @@
     background-color: #0056b3;
 }
 
-/* style for clothing images */
+input[type="text"] {
+    padding: 10px;
+    margin: 5px 0;
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+}
+
 .clothingImage {
     max-width: 100px;
     margin: 5px;
@@ -20,10 +47,16 @@
 }
 
 .clothingImage.show {
-    /* change opacity to 1 (visible) when the "show" class is added */
     opacity: 1;
 }
 
-#wardrobe {
-    border: 1px dotted grey;
+#weatherDisplay,
+#clothingRecommendation {
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+}
+
+section h2 {
+    color: #0056b3;
 }
