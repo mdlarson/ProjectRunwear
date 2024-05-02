@@ -10,30 +10,48 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    '''
+    Serves the main HTML page for the application.
+
+    Returns:
+        The HTML content of the runwear.html template.
+    '''
     return render_template('runwear.html')
 
 
 @app.route("/about")
 def about():
+    '''
+    Serves the 'About' page of the application.
+
+    Returns:
+        The HTML content of the about.html template.
+    '''
     return render_template('about.html')
 
 
 @app.route('/getClothing', methods=['POST'])
 def get_clothing_recommendation():
-    # Given weather conditions, identify appropriate clothing, return related images
+    '''
+    Processes POST request containing temperature and wind speed to determine
+    appropriate clothing based on predefined conditions.
+
+    Returns:
+        A JSON response containing URLs of images representing the recommended clothing.
+        Returns an error message and 500 status code if an exception occurs.
+    Raises:
+        Exception: Catches and logs unexpected errors during processing.
+    '''
     try:
         data = request.json
 
-        # Process weather details
         temp = round_temperature(data['temp'])
         wind_speed = process_wind_speed(data['windSpeed'])
         conditions = get_conditions(wind_speed)
 
-        # Retrieve the appropriate set of clothing
         recommended_clothing = clothingRecommendationMatrix.get(
             temp, {}).get(conditions, [])
 
-        # Fetch and return images for that set of clothing
         image_urls = [clothing_images[item]
                       for item in recommended_clothing if item in clothing_images]
         return jsonify({"imageUrls": image_urls})
@@ -44,18 +62,39 @@ def get_clothing_recommendation():
 
 
 def round_temperature(temp):
-    # Round temperature to nearest 5-degree increment
+    '''
+    Rounds a temperature value to the nearest 5 degrees for consistent matrix lookup.
+
+    Args:
+        temp (str): The temperature string to round.
+    Returns:
+        str: The rounded temperature as a string, adjusted to nearest 5 degrees.
+    '''
     return str(round(float(temp) / 5) * 5)
 
 
 def process_wind_speed(wind_speed):
-    # Extract integer portion of wind speed string
+    '''
+    Extracts the numeric part from a wind speed string assumed to be in the format "XX mph".
+
+    Args:
+        wind_speed (str): The wind speed string from which to extract the numeric part.
+    Returns:
+        str: The numeric part of the wind speed.
+    '''
     wind_speed_num = wind_speed.split(' ')[0]
     return wind_speed_num
 
 
-# Categorize wind conditions
 def get_conditions(wind_speed):
+    '''
+    Determines wind conditions based on the wind speed.
+
+    Args:
+        wind_speed (str): The wind speed in mph as a string.
+    Returns:
+        str: 'windy' if wind speed is greater than 10 mph, otherwise 'calm'.
+    '''
     if int(wind_speed) > 10:
         conditions = 'windy'
     else:
@@ -63,7 +102,6 @@ def get_conditions(wind_speed):
     return conditions
 
 
-# Clothing References
 clothing_images = {
     'shirt': 'static/images/shirt.svg',
     'longsleeve': 'static/images/longsleeve.svg',
