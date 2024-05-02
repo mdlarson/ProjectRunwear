@@ -76,6 +76,30 @@ clothing_images = {
 }
 
 clothingRecommendationMatrix = {
+    '100': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
+    '95': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
+    '90': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
+    '85': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
+    '80': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
+    '75': {
+        'calm': ["shirt", "shorts", "cap"],
+        'windy': ["shirt", "shorts", "cap"]
+    },
     '70': {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["shirt", "shorts", "cap"]
