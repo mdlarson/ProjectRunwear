@@ -103,32 +103,36 @@ def get_conditions(wind_speed):
 
 
 clothing_images = {
+    'tanktop': 'static/images/tanktop.svg',
     'shirt': 'static/images/shirt.svg',
     'longsleeve': 'static/images/longsleeve.svg',
     'fleece': 'static/images/fleece.svg',
     'jacket': 'static/images/jacket.svg',
     'shorts': 'static/images/shorts.svg',
-    'lightTights': 'static/images/lightTights.svg',
+    'tights': 'static/images/tights.svg',
+    'fleeceTights': 'static/images/fleeceTights.svg',
+    'cap': 'static/images/cap.svg',
     'beanie': 'static/images/beanie.svg',
     'gloves': 'static/images/gloves.svg',
+    'scarf': 'static/images/scarf.svg'
 }
 
 clothingRecommendationMatrix = {
     '100': {
-        'calm': ["shirt", "shorts", "cap"],
-        'windy': ["shirt", "shorts", "cap"]
+        'calm': ["tanktop", "shorts", "cap"],
+        'windy': ["tanktop", "shorts", "cap"]
     },
     '95': {
-        'calm': ["shirt", "shorts", "cap"],
-        'windy': ["shirt", "shorts", "cap"]
+        'calm': ["tanktop", "shorts", "cap"],
+        'windy': ["tanktop", "shorts", "cap"]
     },
     '90': {
-        'calm': ["shirt", "shorts", "cap"],
-        'windy': ["shirt", "shorts", "cap"]
+        'calm': ["tanktop", "shorts", "cap"],
+        'windy': ["tanktop", "shorts", "cap"]
     },
     '85': {
-        'calm': ["shirt", "shorts", "cap"],
-        'windy': ["shirt", "shorts", "cap"]
+        'calm': ["tanktop", "shorts", "cap"],
+        'windy': ["tanktop", "shorts", "cap"]
     },
     '80': {
         'calm': ["shirt", "shorts", "cap"],
@@ -164,7 +168,7 @@ clothingRecommendationMatrix = {
     },
     '40': {
         'calm': ["shirt", "fleece", "shorts", "cap", "gloves"],
-        'windy': ["shirt", "fleece", "jacket", "lightTights", "beanie", "gloves"]
+        'windy': ["shirt", "fleece", "jacket", "tights", "beanie", "gloves"]
     },
     '35': {
         'calm': ["shirt", "fleece", "jacket", "tights", "beanie", "gloves"],
@@ -172,14 +176,14 @@ clothingRecommendationMatrix = {
     },
     '30': {
         'calm': ["longsleeve", "fleece", "jacket", "shorts", "tights", "beanie", "gloves"],
-        'windy': ["longsleeve", "fleece", "jacket", "tights", "joggers", "beanie", "gloves"]
+        'windy': ["longsleeve", "fleece", "jacket", "shorts", "fleeceTights", "beanie", "gloves"]
     },
     '25': {
-        'calm': ["longsleeve", "fleece", "jacket", "fleeceTights", "joggers", "beanie", "gloves"],
-        'windy': ["longsleeve", "fleece", "jacket", "fleeceTights", "joggers", "beanie", "gloves", "scarf"]
+        'calm': ["longsleeve", "fleece", "jacket", "shorts", "fleeceTights", "beanie", "gloves"],
+        'windy': ["longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"]
     },
     '20': {
-        'calm': ["longsleeve", "fleece", "jacket", "tights", "joggers", "beanie", "gloves", "scarf"],
-        'windy': ["shirt", "longsleeve", "fleece", "jacket", "tights", "joggers", "beanie", "gloves", "scarf"]
+        'calm': ["longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"],
+        'windy': ["shirt", "longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"]
     }
 }
