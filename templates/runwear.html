@@ -4,36 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Runwear: What to Wear Running</title>
+    <title>Project Runwear: What to Wear Running in All Weather</title>
     <link rel="stylesheet" type="text/css" href="static/style.css">
     <script src="static/geo.js" defer></script>
 </head>
 
 <body>
     <header>
-        <h1>What should I wear for my run?</h1>
+        <h1>What should I wear on my run?</h1>
     </header>
     <main>
-        <section>
-            <h2>Find Weather for Your Run</h2>
-            <button class="temp-button" onclick="getLocation()">Find Me</button>, or ↓
+        <section id="weatherDisplay">
+            <h2>1. Get the weather...</h2>
+            <button class="button" onclick="getLocation()">Find Me</button> or ↓
             <form onsubmit="getWeatherByZip(); return false;">
                 <input type="text" id="zipInput" placeholder="Enter ZIP Code">
-                <button type="submit" class="temp-button">Get Weather by ZIP</button>
+                <button type="submit" class="button">Get Weather by ZIP</button>
             </form>
         </section>
         <section id="weatherDisplay">
-            <h2>Weather Details</h2>
+            <h2>2. Check the details...</h2>
             <div id="latLongOutput"></div>
-            <div id="forecastSourceOutput"></div>
+            <!-- <div id="forecastSourceOutput"></div> -->
             <div id="forecastOutput">Supply your location to get the weather + outfit recommendation!</div>
         </section>
         <section id="clothingRecommendation">
-            <h2>Outfit Recommendation</h2>
+            <h2>3. Consider this outfit!</h2>
             <div id="recommendationOutput"></div>
         </section>
     </main>
     <footer>
+        <p><a href="/about">About</a></p>
         <p>2024 &copy; Project Runwear</p>
     </footer>
 </body>

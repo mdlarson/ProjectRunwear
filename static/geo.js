@@ -47,11 +47,10 @@ async function getWeatherByZip() {
  *                           Contains coordinates with latitude and longitude.
  */
 function displayWeather(position) {
-    // TODO: adjust precision for privacy?
     const latitude = position.coords.latitude.toFixed(4);
     const longitude = position.coords.longitude.toFixed(4);
 
-    document.getElementById('latLongOutput').innerHTML = `${latitude}, ${longitude}`;
+    document.getElementById('latLongOutput').innerHTML = `Coordinates: ${latitude}, ${longitude}`;
     fetchWeather(latitude, longitude);
 }
 
@@ -71,7 +70,7 @@ async function fetchWeather(latitude, longitude) {
         const response = await fetch(endpoint).then(handleFetchResponse);
 
         const forecastUrl = response.properties.forecastHourly;
-        document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a> ...`;
+        //document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a> ...`;
 
         const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
         const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
@@ -108,7 +107,6 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
         })
     }).then(response => response.json())
         .then(data => {
-            console.log(data); // TODO: remove logging
             // Display images on webpage
             const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
             document.getElementById('recommendationOutput').innerHTML = imagesHtml;
