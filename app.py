@@ -2,8 +2,6 @@ import logging
 from flask import Flask, jsonify, render_template, request
 
 logging.basicConfig(level=logging.DEBUG)
-
-
 app = Flask(__name__)
 
 
@@ -44,7 +42,7 @@ def get_clothing_recommendation():
     try:
         data = request.json
 
-        temp = round_temperature(data['temp'])
+        temp = int(round_temperature(data['temp']))
         wind_speed = process_wind_speed(data['windSpeed'])
         conditions = get_conditions(wind_speed)
 
@@ -117,71 +115,71 @@ clothing_images = {
 }
 
 clothingRecommendationMatrix = {
-    '100': {
+    100: {
         'calm': ["tanktop", "shorts", "cap"],
         'windy': ["tanktop", "shorts", "cap"]
     },
-    '95': {
+    95: {
         'calm': ["tanktop", "shorts", "cap"],
         'windy': ["tanktop", "shorts", "cap"]
     },
-    '90': {
+    90: {
         'calm': ["tanktop", "shorts", "cap"],
         'windy': ["tanktop", "shorts", "cap"]
     },
-    '85': {
+    85: {
         'calm': ["tanktop", "shorts", "cap"],
         'windy': ["tanktop", "shorts", "cap"]
     },
-    '80': {
+    80: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["shirt", "shorts", "cap"]
     },
-    '75': {
+    75: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["shirt", "shorts", "cap"]
     },
-    '70': {
+    70: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["shirt", "shorts", "cap"]
     },
-    '65': {
+    65: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["shirt", "shorts", "cap"]
     },
-    '60': {
+    60: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["longsleeve", "shorts", "cap"]
     },
-    '55': {
+    55: {
         'calm': ["shirt", "shorts", "cap"],
         'windy': ["longsleeve", "shorts", "cap"]
     },
-    '50': {
+    50: {
         'calm': ["longsleeve", "shorts", "cap"],
         'windy': ["shirt", "longsleeve", "shorts", "cap"]
     },
-    '45': {
+    45: {
         'calm': ["shirt", "longsleeve", "shorts", "cap", "gloves"],
         'windy': ["shirt", "fleece", "shorts", "cap", "gloves"]
     },
-    '40': {
+    40: {
         'calm': ["shirt", "fleece", "shorts", "cap", "gloves"],
         'windy': ["shirt", "fleece", "jacket", "tights", "beanie", "gloves"]
     },
-    '35': {
+    35: {
         'calm': ["shirt", "fleece", "jacket", "tights", "beanie", "gloves"],
         'windy': ["longsleeve", "fleece", "jacket", "shorts", "tights", "beanie", "gloves"]
     },
-    '30': {
+    30: {
         'calm': ["longsleeve", "fleece", "jacket", "shorts", "tights", "beanie", "gloves"],
         'windy': ["longsleeve", "fleece", "jacket", "shorts", "fleeceTights", "beanie", "gloves"]
     },
-    '25': {
+    25: {
         'calm': ["longsleeve", "fleece", "jacket", "shorts", "fleeceTights", "beanie", "gloves"],
         'windy': ["longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"]
     },
-    '20': {
+    20: {
         'calm': ["longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"],
         'windy': ["shirt", "longsleeve", "fleece", "jacket", "tights", "fleeceTights", "beanie", "gloves", "scarf"]
     }
