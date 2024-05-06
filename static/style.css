@@ -23,7 +23,14 @@ footer {
 }
 
 h1 {
-    transform: rotate(-4deg);
+    font-size: 3rem;
+    text-shadow: 1px 1px 4px #feeeff;
+    transform: rotate(-3deg);
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: #0077a5;
 }
 
 img:hover {
@@ -85,15 +92,11 @@ input[type="text"] {
     border-radius: 5px;
 }
 
-section h2 {
-    color: #0077a5;
-}
-
 .clothingImage {
     max-width: 100px;
     margin: 5px;
     opacity: .6;
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .clothingImage.show {
