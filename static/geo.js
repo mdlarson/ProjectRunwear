@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Attempts to get the current geographic location of the user using the browser's geolocation API.
  * If successful, it will display the weather details for the current location.
