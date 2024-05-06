@@ -1,6 +1,5 @@
 import logging
 from flask import Flask, jsonify, render_template, request
-from markupsafe import escape
 
 logging.basicConfig(level=logging.DEBUG)
 

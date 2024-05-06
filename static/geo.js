@@ -4,7 +4,6 @@
  * Otherwise, it alerts the user that geolocation is not supported.
  */
 async function getLocation() {
-    // If we can get the location, use that position to get weather
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(displayWeather, displayError);
     } else {
@@ -70,8 +69,6 @@ async function fetchWeather(latitude, longitude) {
         const response = await fetch(endpoint).then(handleFetchResponse);
 
         const forecastUrl = response.properties.forecastHourly;
-        //document.getElementById('forecastSourceOutput').innerHTML = `Getting forecast from <a href="${forecastUrl}">${forecastUrl}</a> ...`;
-
         const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
         const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
         const probabilityOfPrecipitation = forecastData.properties.periods[0].probabilityOfPrecipitation.value;
@@ -107,7 +104,6 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
         })
     }).then(response => response.json())
         .then(data => {
-            // Display images on webpage
             const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
             document.getElementById('recommendationOutput').innerHTML = imagesHtml;
         })
