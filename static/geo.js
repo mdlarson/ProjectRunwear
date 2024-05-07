@@ -80,12 +80,10 @@ async function displayWeather(latitude, longitude) {
  * @throws Throws an error if unable to fetch weather data or if the API returns an error status.
  */
 async function fetchWeather(latitude, longitude) {
-    const endpoint = `https://api.weather.gov/points/${latitude},${longitude}`;
     try {
-        const response = await fetch(endpoint);
-        const data = await handleFetchResponse(response);
-        const forecastUrl = data.properties.forecastHourly;
-        const forecastData = await fetch(forecastUrl).then(handleFetchResponse);
+        const endpoint = `${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+        const weatherData = await fetchAPI(endpoint);
+        const forecastData = await fetchAPI(weatherData.properties.forecastHourly);
 
         const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
         updateWeatherDisplay(temperature, temperatureUnit, shortForecast, windSpeed, forecastData.properties.periods[0].probabilityOfPrecipitation.value);
@@ -93,6 +91,7 @@ async function fetchWeather(latitude, longitude) {
         logError(error);
     }
 }
+
 
 /**
  * Updates the webpage with detailed weather conditions and requests clothing recommendations.
@@ -107,7 +106,11 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
     const forecastOutput = document.getElementById('forecastOutput');
     forecastOutput.textContent = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
 
-    const postData = JSON.stringify({ temp, windSpeed });
+    const postData = JSON.stringify({
+        temp: parseFloat(temp),
+        windSpeed: parseFloat(windSpeed)
+    });
+
     fetch('/getClothing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,9 +129,15 @@ function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip
  *                       The 'imageUrls' property of this object is expected to be an array of strings.
  */
 function displayClothingRecommendations(data) {
+    if (!data || !Array.isArray(data.imageUrls)) {
+        console.error('No image URLs available or invalid format:', data);
+        document.getElementById('recommendationOutput').textContent = 'No clothing recommendations available.';
+        return;
+    }
     const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
     document.getElementById('recommendationOutput').innerHTML = imagesHtml;
 }
+
 
 // Utility Functions
 
