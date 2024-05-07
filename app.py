@@ -30,31 +30,41 @@ def about():
 @app.route('/getClothing', methods=['POST'])
 def get_clothing_recommendation():
     '''
-    Processes POST request containing temperature and wind speed to determine
-    appropriate clothing based on predefined conditions.
+    Processes a POST request containing JSON data with temperature and wind speed to determine
+    appropriate clothing based on predefined conditions. Uses a temperature lookup matrix
+    to decide on clothing items and returns them as image URLs.
 
     Returns:
-        A JSON response containing URLs of images representing the recommended clothing.
-        Returns an error message and 500 status code if an exception occurs.
+        jsonify: JSON object containing either the URLs of images or an error message.
+
     Raises:
-        Exception: Catches and logs unexpected errors during processing.
+        Exception: Catches broad exceptions, logs them, and returns a 500 server error response.
+                   Specific exceptions (e.g., KeyError when accessing temperature or windSpeed)
+                   should be handled and logged appropriately.
+
     '''
     try:
         data = request.json
+        validate_request_data(data)
 
-        temp = int(round_temperature(data['temp']))
-        wind_speed = process_wind_speed(data['windSpeed'])
+        temp = float(data.get('temp', 60))  # default if not provided
+        wind_speed = float(data.get('windSpeed', 0))
+
+        rounded_temp = round_temperature(temp)
         conditions = get_conditions(wind_speed)
 
         recommended_clothing = clothingRecommendationMatrix.get(
-            temp, {}).get(conditions, [])
+            rounded_temp, {}).get(conditions, [])
 
         image_urls = [clothing_images[item]
                       for item in recommended_clothing if item in clothing_images]
         return jsonify({"imageUrls": image_urls})
 
+    except ValueError as e:
+        logging.exception("Data type error: {}".format(e))
+        return jsonify({"error": "Invalid data types provided"}), 400
     except Exception as e:
-        logging.exception("Error processing request")
+        logging.exception("Error processing request: {}".format(e))
         return jsonify({"error": str(e)}), 500
 
 
@@ -65,9 +75,9 @@ def round_temperature(temp):
     Args:
         temp (str): The temperature string to round.
     Returns:
-        str: The rounded temperature as a string, adjusted to nearest 5 degrees.
+        int: The rounded temperature as an integer, adjusted to nearest 5 degrees.
     '''
-    return str(round(float(temp) / 5) * 5)
+    return round(float(temp) / 5) * 5
 
 
 def process_wind_speed(wind_speed):
@@ -93,10 +103,27 @@ def get_conditions(wind_speed):
         str: 'windy' if wind speed is greater than 10 mph, otherwise 'calm'.
     '''
     if int(wind_speed) > 10:
-        conditions = 'windy'
+        return 'windy'
     else:
-        conditions = 'calm'
-    return conditions
+        return 'calm'
+
+
+def validate_request_data(data):
+    '''
+    Validates the required fields in the data dictionary from the request JSON.
+    Ensures that 'temp' and 'windSpeed' are present and can be correctly parsed.
+
+    Args:
+        data (dict): The JSON data converted to a dictionary.
+
+    Returns:
+        bool: True if valid, raises ValueError if invalid.
+    '''
+    if 'temp' not in data or 'windSpeed' not in data:
+        raise ValueError("Temperature or wind speed data missing.")
+    if not isinstance(data['temp'], (int, float)) or not isinstance(data['windSpeed'], (int, float)):
+        raise ValueError("Temperature and wind speed must be numeric.")
+    return True
 
 
 clothing_images = {
