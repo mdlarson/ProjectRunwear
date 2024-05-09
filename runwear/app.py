@@ -2,7 +2,9 @@ import logging
 from flask import Flask, jsonify, render_template, request
 
 logging.basicConfig(level=logging.DEBUG)
-app = Flask(__name__)
+app = Flask(__name__,
+            template_folder='../templates',
+            static_folder='../static')
 
 
 @app.route("/")
