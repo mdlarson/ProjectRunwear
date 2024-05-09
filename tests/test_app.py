@@ -37,7 +37,7 @@ def test_index_page(client):
     '''
     response = client.get('/')
     assert response.status_code == 200
-    assert 'What should I wear for my run?' in response.get_data(as_text=True)
+    assert 'What should I wear on my run?' in response.get_data(as_text=True)
 
 
 def test_about_page(client):
