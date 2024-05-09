@@ -1,12 +1,47 @@
-/beanie.png
-/cap.png
-/fleece.png
-/gloves.png
-/joggers.png
-/longsleeve.png
-/scarf.png
-/shirt.png
-/shorts.png
-/tights.png
-.venv/*
+# Byte-compiled / optimized / DLL files
 __pycache__/*
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+.venv/*
+
+
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Pytest, coverage reports
+.pytest_cache/
+.coverage
+coverage.xml
+*.cover
+htmlcov/
+
+# Databases
+*.db
+*.sql
+*.sqlite
+
+# Dynamic config/settings
+config.py
+
+# Node.js
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
