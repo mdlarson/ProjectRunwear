@@ -7,8 +7,8 @@
     <title>Project Runwear: What to Wear Running in All Weather</title>
     <meta name="description"
         content="Find the right running outfit for every kind of weather, whether you're running in rain, snow, cold, or heat.">
-    <link rel="stylesheet" type="text/css" href="static/style.css">
-    <script src="static/geo.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='geo.js') }}" defer></script>
 
     <!-- Open Graph / Social Stuff -->
     <meta property="og:url" content="https://runwear.app">
