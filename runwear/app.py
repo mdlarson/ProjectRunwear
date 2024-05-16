@@ -63,10 +63,10 @@ def get_clothing_recommendation():
         return jsonify({"imageUrls": image_urls})
 
     except ValueError as e:
-        logging.exception("Data type error: {}".format(e))
+        logging.exception("Data type error: %s", e)
         return jsonify({"error": "Invalid data types provided"}), 400
     except Exception as e:
-        logging.exception("Error processing request: {}".format(e))
+        logging.exception("Error processing request: %s", e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -95,9 +95,13 @@ def process_wind_speed(wind_speed):
         wind_speed (str): The wind speed string from which to extract the numeric part.
     Returns:
         str: The numeric part of the wind speed.
+    Raises:
+        ValueError: If the input format is invalid.
     '''
-    wind_speed_num = wind_speed.split(' ')[0]
-    return wind_speed_num
+    parts = wind_speed.strip().split(' ')
+    if len(parts) != 2 or not parts[0].isdigit() or parts[1] != "mph":
+        raise ValueError("Invalid wind speed format")
+    return parts[0]
 
 
 def get_conditions(wind_speed):
