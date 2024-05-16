@@ -48,6 +48,7 @@ async function getWeatherByZip() {
     } catch (error) {
         logError(error);
         document.getElementById('forecastSourceOutput').textContent = "Failed to fetch location data.";
+        document.getElementById('forecastOutput').textContent = "";
     }
 }
 
@@ -105,6 +106,7 @@ async function fetchWeather(latitude, longitude) {
 function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
     const forecastOutput = document.getElementById('forecastOutput');
     forecastOutput.textContent = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
+    document.getElementById('forecastSourceOutput').textContent = "";
 
     const postData = JSON.stringify({
         temp: parseFloat(temp),
