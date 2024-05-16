@@ -63,10 +63,10 @@ def get_clothing_recommendation():
         return jsonify({"imageUrls": image_urls})
 
     except ValueError as e:
-        logging.exception("Data type error: {}".format(e))
+        logging.exception("Data type error: %s", e)
         return jsonify({"error": "Invalid data types provided"}), 400
     except Exception as e:
-        logging.exception("Error processing request: {}".format(e))
+        logging.exception("Error processing request: %s", e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -78,8 +78,13 @@ def round_temperature(temp):
         temp (str): The temperature string to round.
     Returns:
         int: The rounded temperature as an integer, adjusted to nearest 5 degrees.
+    Raises:
+        ValueError: If the input cannot be converted to float.
     '''
-    return round(float(temp) / 5) * 5
+    try:
+        return round(float(temp) / 5) * 5
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Invalid temperature value: {temp}") from e
 
 
 def process_wind_speed(wind_speed):
@@ -90,9 +95,13 @@ def process_wind_speed(wind_speed):
         wind_speed (str): The wind speed string from which to extract the numeric part.
     Returns:
         str: The numeric part of the wind speed.
+    Raises:
+        ValueError: If the input format is invalid.
     '''
-    wind_speed_num = wind_speed.split(' ')[0]
-    return wind_speed_num
+    parts = wind_speed.strip().split(' ')
+    if len(parts) != 2 or not parts[0].isdigit() or parts[1] != "mph":
+        raise ValueError("Invalid wind speed format")
+    return parts[0]
 
 
 def get_conditions(wind_speed):
