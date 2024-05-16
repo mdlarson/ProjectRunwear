@@ -78,8 +78,13 @@ def round_temperature(temp):
         temp (str): The temperature string to round.
     Returns:
         int: The rounded temperature as an integer, adjusted to nearest 5 degrees.
+    Raises:
+        ValueError: If the input cannot be converted to float.
     '''
-    return round(float(temp) / 5) * 5
+    try:
+        return round(float(temp) / 5) * 5
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Invalid temperature value: {temp}") from e
 
 
 def process_wind_speed(wind_speed):
