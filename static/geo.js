@@ -168,7 +168,7 @@ async function fetchAPI(url) {
  */
 function handleFetchResponse(response) {
     if (!response.ok) {
-        throw new Error(`HTTP error. Status: ' ${response.status}`);
+        throw new Error(`HTTP error. Status: ${response.status}`);
     }
     return response.json();
 }
@@ -203,3 +203,17 @@ function displayError(error) {
     };
     alert(errorMessages[error.code] || "An error occurred during geolocation.");
 }
+
+// Export functions
+module.exports = {
+    getLocation,
+    getWeatherByZip,
+    displayWeather,
+    fetchWeather,
+    updateWeatherDisplay,
+    displayClothingRecommendations,
+    fetchAPI,
+    handleFetchResponse,
+    logError,
+    displayError,
+};
