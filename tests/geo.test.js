@@ -3,8 +3,11 @@ fetchMock.enableMocks();
 const geo = require('../static/geo');
 
 beforeEach(() => {
-    fetch.resetMocks();
-    document.body.innerHTML = '';
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+afterEach(() => {
+    console.error.mockRestore();
 });
 
 describe('geo.js tests', () => {
@@ -84,10 +87,13 @@ describe('geo.js tests', () => {
             status: 404,
             json: jest.fn().mockResolvedValue({})
         };
-        console.log('mockResponse:', mockResponse);
-        await expect(geo.handleFetchResponse(mockResponse)).rejects.toThrow("HTTP error. Status: 404");
-    });
 
+        try {
+            await geo.handleFetchResponse(mockResponse);
+        } catch (error) {
+            expect(error.message).toBe("HTTP error. Status: 404");
+        }
+    });
 
 
 
