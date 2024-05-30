@@ -65,20 +65,67 @@ describe('geo.js tests', () => {
                 }
             })]
         );
-
-
         document.body.innerHTML = `
             <div id="forecastOutput"></div>
             <div id="forecastSourceOutput"></div>
         `;
-
         await geo.displayWeather(40.7128, -74.0060);
         expect(fetch).toHaveBeenCalledWith("https://api.weather.gov/points/40.7128,-74.0060");
         expect(document.getElementById('forecastOutput').textContent).toContain('72ºF');
     });
 
+    // TODO: fetchWeather goes here
 
+    // TODO: write better note
+    test('updateWeatherDisplay updates the DOM and fetches clothing recommendations', async () => {
+        document.body.innerHTML = `
+            <div id="forecastOutput"></div>
+            <div id="forecastSourceOutput"></div>
+            <div id="recommendationOutput"></div>
+        `;
 
+        fetch.mockResponseOnce(JSON.stringify({ imageUrls: ['mockUrl1', 'mockUrl2'] }));
+
+        await geo.updateWeatherDisplay(70, 'F', 'Sunny', '5 mph', 0);
+
+        expect(document.getElementById('forecastOutput').textContent).toBe('70ºF, Sunny, 5 mph wind, 0% chance of rain');
+        expect(document.getElementById('forecastSourceOutput').textContent).toBe('');
+        expect(fetch).toHaveBeenCalledWith('/getClothing', expect.any(Object));
+    });
+
+    // TODO: displayClothingRecommendations needs a better docstring....
+    test('displayClothingRecommendations displays images correctly', () => {
+        document.body.innerHTML = '<div id="recommendationOutput"></div>';
+        const mockData = { imageUrls: ['mockUrl1', 'mockUrl2'] };
+
+        geo.displayClothingRecommendations(mockData);
+
+        expect(document.getElementById('recommendationOutput').innerHTML).toBe('<img src="mockUrl1" alt="clothing item" width="200px"><img src="mockUrl2" alt="clothing item" width="200px">');
+    });
+
+    // TODO: fetchAPI needs a better docstring...
+    test('fetchAPI throws error on bad response', async () => {
+        fetch.mockResponseOnce(null, { status: 404 });
+
+        await expect(geo.fetchAPI('mockUrl')).rejects.toThrow('HTTP error, status = 404');
+    });
+
+    // TODO: displayError needs a better docstring...
+    test('displayError shows correct error message', () => {
+        global.alert = jest.fn();
+
+        // Mock the error object with expected constants
+        const error = {
+            code: 1,
+            PERMISSION_DENIED: 1,
+            POSITION_UNAVAILABLE: 2,
+            TIMEOUT: 3,
+            UNKNOWN_ERROR: 4
+        };
+
+        geo.displayError(error);
+        expect(global.alert).toHaveBeenCalledWith("User denied request for geolocation.");
+    });
 
     // tests that a failed fetch response throws an error
     test('handleFetchResponse throws error on bad response', async () => {
@@ -94,8 +141,6 @@ describe('geo.js tests', () => {
             expect(error.message).toBe("HTTP error. Status: 404");
         }
     });
-
-
 
     // tests that errors are logged and the DOM is updated correctly
     test('logError updates DOM and logs error', () => {
