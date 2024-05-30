@@ -155,7 +155,11 @@ async function fetchAPI(url) {
     if (!response.ok) {
         throw new Error(`HTTP error, status = ${response.status}`);
     }
-    return response.json();
+    try {
+        return await response.json();
+    } catch (error) {
+        throw new Error('Invalid JSON response');
+    }
 }
 
 /**
@@ -170,7 +174,11 @@ function handleFetchResponse(response) {
     if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`);
     }
-    return response.json();
+    try {
+        return response.json();
+    } catch (error) {
+        throw new Error('Invalid JSON response');
+    }
 }
 
 /**
