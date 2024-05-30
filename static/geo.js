@@ -204,10 +204,10 @@ function logError(error) {
  */
 function displayError(error) {
     const errorMessages = {
-        [error.PERMISSION_DENIED]: "User denied request for geolocation.",
-        [error.POSITION_UNAVAILABLE]: "Location data is not available.",
-        [error.TIMEOUT]: "The request for location data timed out.",
-        [error.UNKNOWN_ERROR]: "An unknown error occurred."
+        1: "User denied request for geolocation.",
+        2: "Location data is not available.",
+        3: "The request for location data timed out.",
+        4: "An unknown error occurred."
     };
     alert(errorMessages[error.code] || "An error occurred during geolocation.");
 }
