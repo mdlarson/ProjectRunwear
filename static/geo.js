@@ -1,33 +1,47 @@
 "use strict";
 
+// Constants
 const WX_API_URL = "https://api.weather.gov/points/";
 const ZIP_API_URL = "https://api.zippopotam.us/us/";
 
-/**
- * Attempts to get the current geographic location of the user using the browser's geolocation API.
- * On success, it calls displayWeather with the obtained latitude and longitude.
- * On failure, it calls displayError.
- * Alerts the user if geolocation is not supported.
- */
-async function getLocation() {
+// Utility Functions
+const fetchAPI = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error, status = ${response.status}`);
+    return response.json();
+};
+
+const logError = (error) => {
+    console.error('Error:', error);
+    const outputElement = document.getElementById('forecastSourceOutput');
+    if (outputElement) {
+        outputElement.textContent = "Failed to fetch weather data.";
+    }
+};
+
+const displayError = (error) => {
+    const errorMessages = {
+        1: "User denied request for geolocation.",
+        2: "Location data is not available.",
+        3: "The request for location data timed out.",
+        4: "An unknown error occurred."
+    };
+    alert(errorMessages[error.code] || "An error occurred during geolocation.");
+};
+
+// Core Functions
+const getLocation = async () => {
     if (!navigator.geolocation) {
         alert("Geolocation is not supported by this browser.");
         return;
     }
     navigator.geolocation.getCurrentPosition(
-        position => displayWeather(position.coords.latitude, position.coords.longitude),
+        position => fetchAndDisplayWeather(position.coords.latitude, position.coords.longitude),
         displayError
     );
-}
+};
 
-/**
- * Fetches weather data based on a ZIP code input from the user.
- * Retrieves the geographic coordinates for the given ZIP code from an external API,
- * then displays weather information by calling displayWeather with those coordinates.
- * Alerts and focuses input if ZIP code is invalid.
- * @throws Will throw an error if the ZIP code API call fails or if the response is invalid.
- */
-async function getWeatherByZip() {
+const getWeatherByZip = async () => {
     const zipInput = document.getElementById('zipInput');
     const zip = zipInput.value.trim();
     if (!zip || !/^\d{5}$/.test(zip)) {
@@ -37,100 +51,69 @@ async function getWeatherByZip() {
     }
 
     try {
-        const locationData = await fetchAPI(`${ZIP_API_URL}${encodeURIComponent(zip)}`);
-        const latitude = parseFloat(locationData.places[0].latitude);
-        const longitude = parseFloat(locationData.places[0].longitude);
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-            displayWeather(latitude, longitude);
-        } else {
-            throw new Error('Invalid location data received.');
-        }
+        const { latitude, longitude } = await fetchLocationByZip(zip);
+        fetchAndDisplayWeather(latitude, longitude);
     } catch (error) {
         logError(error);
-        document.getElementById('forecastSourceOutput').textContent = "Failed to fetch location data.";
-        document.getElementById('forecastOutput').textContent = "";
     }
-}
+};
 
-/**
- * Fetches and displays weather information for given latitude and longitude coordinates.
- * This function fetches detailed hourly forecast information and updates the DOM to show these weather details.
- * It also triggers fetching clothing recommendations based on the weather data.
- * @param {number} latitude - The latitude of the location.
- * @param {number} longitude - The longitude of the location.
- * @throws Will throw an error if the weather API call fails or returns an invalid response.
- */
-async function displayWeather(latitude, longitude) {
+const fetchLocationByZip = async (zip) => {
+    const locationData = await fetchAPI(`${ZIP_API_URL}${encodeURIComponent(zip)}`);
+    const latitude = parseFloat(locationData.places[0].latitude);
+    const longitude = parseFloat(locationData.places[0].longitude);
+    if (isNaN(latitude) || isNaN(longitude)) {
+        throw new Error('Invalid location data received.');
+    }
+    return { latitude, longitude };
+};
+
+const fetchAndDisplayWeather = async (latitude, longitude) => {
     try {
-        const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
-        const forecastData = await fetchAPI(weatherData.properties.forecastHourly);
-        const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
-
-        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, windSpeed, forecastData.properties.periods[0].probabilityOfPrecipitation.value);
+        const weatherData = await fetchWeatherData(latitude, longitude);
+        const forecastData = await fetchForecastData(weatherData.properties.forecastHourly);
+        updateWeatherDisplay(forecastData);
     } catch (error) {
         logError(error);
     }
-}
+};
 
-/**
- * Retrieves weather information for specific geographic coordinates.
- * Contacts an API to get detailed weather information and updates relevant DOM elements to display this information.
- * Initiates a subsequent API call to get clothing recommendations based on the current weather conditions.
- * @param {number} latitude - Latitude for which to fetch weather.
- * @param {number} longitude - Longitude for which to fetch weather.
- * @throws Throws an error if unable to fetch weather data or if the API returns an error status.
- */
-async function fetchWeather(latitude, longitude) {
-    try {
-        const endpoint = `${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-        const weatherData = await fetchAPI(endpoint);
-        const forecastData = await fetchAPI(weatherData.properties.forecastHourly);
+const fetchWeatherData = async (latitude, longitude) => {
+    const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
+    return weatherData;
+};
 
-        const { temperature, temperatureUnit, shortForecast, windSpeed } = forecastData.properties.periods[0];
-        updateWeatherDisplay(temperature, temperatureUnit, shortForecast, windSpeed, forecastData.properties.periods[0].probabilityOfPrecipitation.value);
-    } catch (error) {
-        logError(error);
-    }
-}
+const fetchForecastData = async (forecastUrl) => {
+    const forecastData = await fetchAPI(forecastUrl);
+    const { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation } = forecastData.properties.periods[0];
+    return { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation };
+};
 
-
-/**
- * Updates the webpage with detailed weather conditions and requests clothing recommendations.
- * Displays formatted weather information and sends a request to the server to retrieve suitable clothing options based on the current weather.
- * @param {number} temp - Current temperature.
- * @param {string} tempUnit - Unit of the temperature measurement (e.g., Celsius or Fahrenheit).
- * @param {string} forecastSummary - Brief description of the current weather.
- * @param {number} windSpeed - Current wind speed.
- * @param {number} precip - Probability of precipitation as a percentage.
- */
-function updateWeatherDisplay(temp, tempUnit, forecastSummary, windSpeed, precip) {
+const updateWeatherDisplay = ({ temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }) => {
     const forecastOutput = document.getElementById('forecastOutput');
-    forecastOutput.textContent = `${temp}º${tempUnit}, ${forecastSummary}, ${windSpeed} wind, ${precip}% chance of rain`;
+    forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation.value}% chance of rain`;
     document.getElementById('forecastSourceOutput').textContent = "";
 
-    const postData = JSON.stringify({
-        temp: parseFloat(temp),
-        windSpeed: parseFloat(windSpeed)
-    });
+    fetchClothingRecommendations({ temp: temperature, windSpeed: windSpeed });
+};
 
-    fetch('/getClothing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: postData
-    }).then(response => response.json())
-        .then(data => displayClothingRecommendations(data))
-        .catch(error => logError(error));
-}
+const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
+    const postData = JSON.stringify({ temp: parseFloat(temp), windSpeed: parseFloat(windSpeed) });
 
-/**
- * Displays clothing recommendations based on the weather conditions.
- * This function takes a response object that includes image URLs for recommended clothing items and renders these images on the webpage.
- * It formats the URLs into image tags and updates the DOM to show these images in a designated area.
- *
- * @param {Object} data - The data object containing an array of image URLs. Each URL corresponds to an image of a recommended clothing item.
- *                       The 'imageUrls' property of this object is expected to be an array of strings.
- */
-function displayClothingRecommendations(data) {
+    try {
+        const response = await fetch('/getClothing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: postData
+        });
+        const data = await response.json();
+        displayClothingRecommendations(data);
+    } catch (error) {
+        logError(error);
+    }
+};
+
+const displayClothingRecommendations = (data) => {
     if (!data || !Array.isArray(data.imageUrls)) {
         console.error('No image URLs available or invalid format:', data);
         document.getElementById('recommendationOutput').textContent = 'No clothing recommendations available.';
@@ -138,90 +121,22 @@ function displayClothingRecommendations(data) {
     }
     const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
     document.getElementById('recommendationOutput').innerHTML = imagesHtml;
-}
-
-
-// Utility Functions
-
-/**
- * Generic fetch function to retrieve data from a specified URL.
- * Ensures the HTTP response is valid and parses the response as JSON.
- * Designed to be reusable for various API endpoints within this script.
- * @param {string} url - The URL from which to fetch data.
- * @throws {Error} Throws an error if the response status code indicates a failure.
- */
-async function fetchAPI(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error, status = ${response.status}`);
-    }
-    try {
-        return await response.json();
-    } catch (error) {
-        throw new Error('Invalid JSON response');
-    }
-}
-
-/**
- * Handles the HTTP response from fetch calls. Ensures the response is valid and returns the parsed JSON.
- * Throws an error if the response status is not okay, indicating that the request failed.
- *
- * @param {Response} response - The response object from a fetch call.
- * @returns {Promise<JSON>} A promise that resolves to the JSON content of the response.
- * @throws {Error} Throws an error if the response status code is not in the successful range.
- */
-function handleFetchResponse(response) {
-    if (!response.ok) {
-        throw new Error(`HTTP error. Status: ${response.status}`);
-    }
-    try {
-        return response.json();
-    } catch (error) {
-        throw new Error('Invalid JSON response');
-    }
-}
-
-/**
- * Logs errors to the console and updates the webpage to indicate a problem with data retrieval.
- * This function acts as a central error handler for failed fetch operations, providing user feedback via the UI.
- * @param {Error} error - The error object to log and display.
- */
-function logError(error) {
-    console.error('Error:', error);
-    const outputElement = document.getElementById('forecastSourceOutput');
-    if (outputElement) {
-        outputElement.textContent = "Failed to fetch weather data.";
-    } else {
-        console.error('Failed to find the forecast output element.');
-    }
-}
-
-/**
- * Handles geolocation errors by alerting the user to the specific problem.
- * This function is designed to provide user-friendly error messages based on the geolocation error code.
- *
- * @param {PositionError} error - The error object containing the error code and message from the geolocation API.
- */
-function displayError(error) {
-    const errorMessages = {
-        1: "User denied request for geolocation.",
-        2: "Location data is not available.",
-        3: "The request for location data timed out.",
-        4: "An unknown error occurred."
-    };
-    alert(errorMessages[error.code] || "An error occurred during geolocation.");
-}
-
-// Export functions
-module.exports = {
-    getLocation,
-    getWeatherByZip,
-    displayWeather,
-    fetchWeather,
-    updateWeatherDisplay,
-    displayClothingRecommendations,
-    fetchAPI,
-    handleFetchResponse,
-    logError,
-    displayError,
 };
+
+// Export functions for Node.js testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        getLocation,
+        getWeatherByZip,
+        fetchLocationByZip,
+        fetchAndDisplayWeather,
+        fetchWeatherData,
+        fetchForecastData,
+        updateWeatherDisplay,
+        fetchClothingRecommendations,
+        displayClothingRecommendations,
+        fetchAPI,
+        logError,
+        displayError,
+    };
+}
