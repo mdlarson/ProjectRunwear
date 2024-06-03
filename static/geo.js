@@ -14,8 +14,10 @@ const fetchAPI = async (url) => {
 const logError = (error) => {
     console.error('Error:', error);
     const outputElement = document.getElementById('forecastSourceOutput');
+    const prevForecast = document.getElementById('forecastOutput');
     if (outputElement) {
         outputElement.textContent = "Failed to fetch weather data.";
+        prevForecast.textContent = "";
     }
 };
 
@@ -69,33 +71,58 @@ const fetchLocationByZip = async (zip) => {
 };
 
 const fetchAndDisplayWeather = async (latitude, longitude) => {
+    // console.log('fetchAndDisplayWeather called with:', latitude, longitude); // Log parameters
     try {
         const weatherData = await fetchWeatherData(latitude, longitude);
+        // console.log('weatherData fetched:', weatherData); // Log fetched weather data
         const forecastData = await fetchForecastData(weatherData.properties.forecastHourly);
-        updateWeatherDisplay(forecastData);
+        // console.log('forecastData fetched:', forecastData); // Log fetched forecast data
+        // console.log('forecastData properties:', forecastData.properties); // Log structure of forecastData.properties
+
+        // Extract relevant data for updateWeatherDisplay
+        const { periods } = forecastData.properties;
+        if (periods && periods.length > 0) {
+            const currentPeriod = periods[0]; // curent weather
+            const forecast = {
+                temperature: currentPeriod.temperature,
+                temperatureUnit: currentPeriod.temperatureUnit,
+                shortForecast: currentPeriod.shortForecast,
+                windSpeed: currentPeriod.windSpeed,
+                probabilityOfPrecipitation: currentPeriod.probabilityOfPrecipitation.value,
+            };
+            updateWeatherDisplay(forecast);
+        } else {
+            console.error('No forecast periods available.');
+        }
     } catch (error) {
         logError(error);
     }
 };
 
+
 const fetchWeatherData = async (latitude, longitude) => {
+    // console.log('fetchWeatherData called with:', latitude, longitude); // Log parameters
     const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
     return weatherData;
 };
 
 const fetchForecastData = async (forecastUrl) => {
-    const forecastData = await fetchAPI(forecastUrl);
-    const { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation } = forecastData.properties.periods[0];
-    return { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation };
+    // console.log('fetchForecastData called with:', forecastUrl); // Log parameters
+    const response = await fetch(forecastUrl);
+    const data = await response.json();
+    // console.log('fetchForecastData response:', data);
+    return data;
 };
 
 const updateWeatherDisplay = ({ temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }) => {
+    // console.log('updateWeatherDisplay called with:', { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }); // Log parameters
     const forecastOutput = document.getElementById('forecastOutput');
-    forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation.value}% chance of rain`;
+    forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation}% chance of rain`;
     document.getElementById('forecastSourceOutput').textContent = "";
 
-    fetchClothingRecommendations({ temp: temperature, windSpeed: windSpeed });
+    fetchClothingRecommendations({ temp: temperature, windSpeed: parseFloat(windSpeed) }); // Ensure windSpeed is a number
 };
+
 
 const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
     const postData = JSON.stringify({ temp: parseFloat(temp), windSpeed: parseFloat(windSpeed) });
@@ -115,7 +142,7 @@ const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
 
 const displayClothingRecommendations = (data) => {
     if (!data || !Array.isArray(data.imageUrls)) {
-        console.error('No image URLs available or invalid format:', data);
+        console.error('No image URLs available, or invalid format:', data);
         document.getElementById('recommendationOutput').textContent = 'No clothing recommendations available.';
         return;
     }
