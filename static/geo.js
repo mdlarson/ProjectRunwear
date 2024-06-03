@@ -71,14 +71,9 @@ const fetchLocationByZip = async (zip) => {
 };
 
 const fetchAndDisplayWeather = async (latitude, longitude) => {
-    // console.log('fetchAndDisplayWeather called with:', latitude, longitude); // Log parameters
     try {
         const weatherData = await fetchWeatherData(latitude, longitude);
-        // console.log('weatherData fetched:', weatherData); // Log fetched weather data
         const forecastData = await fetchForecastData(weatherData.properties.forecastHourly);
-        // console.log('forecastData fetched:', forecastData); // Log fetched forecast data
-        // console.log('forecastData properties:', forecastData.properties); // Log structure of forecastData.properties
-
         // Extract relevant data for updateWeatherDisplay
         const { periods } = forecastData.properties;
         if (periods && periods.length > 0) {
@@ -101,32 +96,25 @@ const fetchAndDisplayWeather = async (latitude, longitude) => {
 
 
 const fetchWeatherData = async (latitude, longitude) => {
-    // console.log('fetchWeatherData called with:', latitude, longitude); // Log parameters
     const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
     return weatherData;
 };
 
 const fetchForecastData = async (forecastUrl) => {
-    // console.log('fetchForecastData called with:', forecastUrl); // Log parameters
     const response = await fetch(forecastUrl);
     const data = await response.json();
-    // console.log('fetchForecastData response:', data);
     return data;
 };
 
 const updateWeatherDisplay = ({ temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }) => {
-    // console.log('updateWeatherDisplay called with:', { temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }); // Log parameters
     const forecastOutput = document.getElementById('forecastOutput');
     forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation}% chance of rain`;
     document.getElementById('forecastSourceOutput').textContent = "";
-
     fetchClothingRecommendations({ temp: temperature, windSpeed: parseFloat(windSpeed) }); // Ensure windSpeed is a number
 };
 
-
 const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
     const postData = JSON.stringify({ temp: parseFloat(temp), windSpeed: parseFloat(windSpeed) });
-
     try {
         const response = await fetch('/getClothing', {
             method: 'POST',
