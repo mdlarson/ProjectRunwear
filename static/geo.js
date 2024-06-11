@@ -71,29 +71,44 @@ const fetchLocationByZip = async (zip) => {
 };
 
 const fetchAndDisplayWeather = async (latitude, longitude) => {
+    console.log('fetchAndDisplayWeather called with:', latitude, longitude);
     try {
         const weatherData = await fetchWeatherData(latitude, longitude);
-        const forecastData = await fetchForecastData(weatherData.properties.forecastHourly);
-        // Extract relevant data for updateWeatherDisplay
-        const { periods } = forecastData.properties;
-        if (periods && periods.length > 0) {
-            const currentPeriod = periods[0]; // curent weather
-            const forecast = {
-                temperature: currentPeriod.temperature,
-                temperatureUnit: currentPeriod.temperatureUnit,
-                shortForecast: currentPeriod.shortForecast,
-                windSpeed: currentPeriod.windSpeed,
-                probabilityOfPrecipitation: currentPeriod.probabilityOfPrecipitation.value,
-            };
-            updateWeatherDisplay(forecast);
-        } else {
-            console.error('No forecast periods available.');
-        }
+        console.log('weatherData fetched:', weatherData);
+        const forecastUrl = weatherData.properties.forecastHourly;
+        await fetchAndProcessForecast(forecastUrl);
     } catch (error) {
         logError(error);
     }
 };
 
+const fetchAndProcessForecast = async (forecastUrl) => {
+    try {
+        const forecastData = await fetchForecastData(forecastUrl);
+        console.log('forecastData fetched:', forecastData);
+        const forecast = processForecastData(forecastData);
+        updateWeatherDisplay(forecast);
+    } catch (error) {
+        logError(error);
+    }
+};
+
+const processForecastData = (forecastData) => {
+    const { periods } = forecastData.properties;
+    if (periods && periods.length > 0) {
+        const currentPeriod = periods[0]; // current weather
+        return {
+            temperature: currentPeriod.temperature,
+            temperatureUnit: currentPeriod.temperatureUnit,
+            shortForecast: currentPeriod.shortForecast,
+            windSpeed: currentPeriod.windSpeed,
+            probabilityOfPrecipitation: currentPeriod.probabilityOfPrecipitation.value,
+        };
+    } else {
+        console.error('No forecast periods available.');
+        throw new Error('No forecast periods available.');
+    }
+};
 
 const fetchWeatherData = async (latitude, longitude) => {
     const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
@@ -141,17 +156,19 @@ const displayClothingRecommendations = (data) => {
 // Export functions for Node.js testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+        fetchAPI,
+        logError,
+        displayError,
         getLocation,
         getWeatherByZip,
         fetchLocationByZip,
         fetchAndDisplayWeather,
+        fetchAndProcessForecast,
+        processForecastData,
         fetchWeatherData,
         fetchForecastData,
         updateWeatherDisplay,
         fetchClothingRecommendations,
-        displayClothingRecommendations,
-        fetchAPI,
-        logError,
-        displayError,
+        displayClothingRecommendations
     };
 }
