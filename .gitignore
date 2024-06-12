@@ -1,16 +1,13 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/*
+__pycache__/
 *.py[cod]
 *$py.class
 
 # Virtual environment
-venv/
+.venv/
 .env
-.venv/*
 
-
-
-# Flask stuff
+# Flask specific
 instance/
 .webassets-cache
 
@@ -20,6 +17,7 @@ instance/
 coverage.xml
 *.cover
 htmlcov/
+coverage/
 
 # Databases
 *.db
@@ -29,8 +27,11 @@ htmlcov/
 # Dynamic config/settings
 config.py
 
-# Node.js
+# Node.js specific
 node_modules/
+.npm
+.eslintcache
+.node_repl_history
 
 # Logs
 logs/
@@ -48,24 +49,9 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 
-# Dependency directories
-node_modules/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional REPL history
-.node_repl_history
-
 # Output directories
 dist/
 build/
 
 # VSCode settings
 .vscode/
-
-# Coverage directory
-coverage/
