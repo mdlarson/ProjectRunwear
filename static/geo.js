@@ -71,10 +71,8 @@ const fetchLocationByZip = async (zip) => {
 };
 
 const fetchAndDisplayWeather = async (latitude, longitude) => {
-    console.log('fetchAndDisplayWeather called with:', latitude, longitude);
     try {
         const weatherData = await fetchWeatherData(latitude, longitude);
-        console.log('weatherData fetched:', weatherData);
         const forecastUrl = weatherData.properties.forecastHourly;
         await fetchAndProcessForecast(forecastUrl);
     } catch (error) {
@@ -95,7 +93,7 @@ const fetchAndProcessForecast = async (forecastUrl) => {
 
 const processForecastData = (forecastData) => {
     const { periods } = forecastData.properties;
-    if (periods && periods.length > 0) {
+    if (periods && Array.isArray(periods) && periods.length > 0) {
         const currentPeriod = periods[0]; // current weather
         return {
             temperature: currentPeriod.temperature,
