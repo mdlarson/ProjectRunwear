@@ -11,14 +11,18 @@ const fetchAPI = async (url) => {
     return response.json();
 };
 
-const logError = (error) => {
-    console.error('Error:', error);
+const handleError = (error, customMessage) => {
+    console.error(customMessage, error);
     const outputElement = document.getElementById('forecastSourceOutput');
     const prevForecast = document.getElementById('forecastOutput');
     if (outputElement) {
-        outputElement.textContent = "Failed to fetch weather data.";
+        outputElement.textContent = customMessage || "An error occurred.";
         prevForecast.textContent = "";
     }
+};
+
+const logError = (error) => {
+    handleError(error, 'Error:');
 };
 
 const displayError = (error) => {
@@ -54,7 +58,7 @@ const getWeatherByZip = async () => {
 
     try {
         const { latitude, longitude } = await fetchLocationByZip(zip);
-        fetchAndDisplayWeather(latitude, longitude);
+        await fetchAndDisplayWeather(latitude, longitude);
     } catch (error) {
         logError(error);
     }
@@ -73,44 +77,50 @@ const fetchLocationByZip = async (zip) => {
 const fetchAndDisplayWeather = async (latitude, longitude) => {
     try {
         const weatherData = await fetchWeatherData(latitude, longitude);
-        const forecastData = await fetchForecastData(weatherData.properties.forecastHourly);
-        // Extract relevant data for updateWeatherDisplay
-        const { periods } = forecastData.properties;
-        if (periods && periods.length > 0) {
-            const currentPeriod = periods[0]; // curent weather
-            const forecast = {
-                temperature: currentPeriod.temperature,
-                temperatureUnit: currentPeriod.temperatureUnit,
-                shortForecast: currentPeriod.shortForecast,
-                windSpeed: currentPeriod.windSpeed,
-                probabilityOfPrecipitation: currentPeriod.probabilityOfPrecipitation.value,
-            };
-            updateWeatherDisplay(forecast);
-        } else {
-            console.error('No forecast periods available.');
-        }
+        const forecastUrl = weatherData.properties.forecastHourly;
+        const forecastData = await fetchForecastData(forecastUrl);
+        const forecast = processForecastData(forecastData);
+        updateWeatherDisplay(forecast);
     } catch (error) {
         logError(error);
     }
 };
 
-
 const fetchWeatherData = async (latitude, longitude) => {
-    const weatherData = await fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
-    return weatherData;
+    return fetchAPI(`${WX_API_URL}${latitude.toFixed(4)},${longitude.toFixed(4)}`);
 };
 
 const fetchForecastData = async (forecastUrl) => {
-    const response = await fetch(forecastUrl);
-    const data = await response.json();
-    return data;
+    return fetchAPI(forecastUrl);
+};
+
+const processForecastData = (forecastData) => {
+    const { periods } = forecastData.properties;
+    if (periods && Array.isArray(periods) && periods.length > 0) {
+        const currentPeriod = periods[0]; // current weather
+        return {
+            temperature: currentPeriod.temperature,
+            temperatureUnit: currentPeriod.temperatureUnit,
+            shortForecast: currentPeriod.shortForecast,
+            windSpeed: currentPeriod.windSpeed,
+            probabilityOfPrecipitation: currentPeriod.probabilityOfPrecipitation.value,
+        };
+    } else {
+        handleError(null, 'No forecast periods available.');
+        throw new Error('No forecast periods available.');
+    }
 };
 
 const updateWeatherDisplay = ({ temperature, temperatureUnit, shortForecast, windSpeed, probabilityOfPrecipitation }) => {
     const forecastOutput = document.getElementById('forecastOutput');
-    forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation}% chance of rain`;
-    document.getElementById('forecastSourceOutput').textContent = "";
-    fetchClothingRecommendations({ temp: temperature, windSpeed: parseFloat(windSpeed) }); // Ensure windSpeed is a number
+    if (forecastOutput) {
+        forecastOutput.textContent = `${temperature}º${temperatureUnit}, ${shortForecast}, ${windSpeed} wind, ${probabilityOfPrecipitation}% chance of rain`;
+    }
+    const forecastSourceOutput = document.getElementById('forecastSourceOutput');
+    if (forecastSourceOutput) {
+        forecastSourceOutput.textContent = "";
+    }
+    fetchClothingRecommendations({ temp: temperature, windSpeed: parseFloat(windSpeed) });
 };
 
 const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
@@ -129,29 +139,33 @@ const fetchClothingRecommendations = async ({ temp, windSpeed }) => {
 };
 
 const displayClothingRecommendations = (data) => {
+    const recommendationOutput = document.getElementById('recommendationOutput');
     if (!data || !Array.isArray(data.imageUrls)) {
-        console.error('No image URLs available, or invalid format:', data);
-        document.getElementById('recommendationOutput').textContent = 'No clothing recommendations available.';
+        handleError(null, 'No image URLs available, or invalid format.');
+        if (recommendationOutput) {
+            recommendationOutput.textContent = 'No clothing recommendations available.';
+        }
         return;
     }
     const imagesHtml = data.imageUrls.map(url => `<img src="${url}" alt="clothing item" width="200px">`).join('');
-    document.getElementById('recommendationOutput').innerHTML = imagesHtml;
+    if (recommendationOutput) {
+        recommendationOutput.innerHTML = imagesHtml;
+    }
 };
 
 // Export functions for Node.js testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+        fetchAPI,
+        logError,
+        displayError,
         getLocation,
         getWeatherByZip,
         fetchLocationByZip,
         fetchAndDisplayWeather,
-        fetchWeatherData,
-        fetchForecastData,
+        processForecastData,
         updateWeatherDisplay,
         fetchClothingRecommendations,
-        displayClothingRecommendations,
-        fetchAPI,
-        logError,
-        displayError,
+        displayClothingRecommendations
     };
 }
