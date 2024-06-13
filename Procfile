@@ -1,0 +1,1 @@
+web: gunicorn runwear.app:app
